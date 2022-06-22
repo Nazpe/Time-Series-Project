@@ -1,7 +1,7 @@
-##############        Séries Temporais            #######################
+##############        S?ries Temporais            #######################
 ##############           2021 /22                   #####################
-##############  Grupo : Ana Rita Cheganças Nº106433 #####################
-##############          Nuno Pedrosa Nº94471             #####################
+##############  Grupo : Ana Rita Chegan?as N?106433 #####################
+##############          Nuno Pedrosa N?94471             #####################
 
 # alguns sites interessantes...
 # https://a-little-book-of-r-for-time-series.readthedocs.io/en/latest/src/timeseries.html
@@ -19,7 +19,7 @@ library(forecast)
 ###############   LOADING AND TRANSFORMING THE DATA   #########################
 
 #Path Rita
-Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ciência de Dados - UA/1º Ano/2º Semestre/Séries Temporais/Trabalho Grupo/Time-Series-Project/brent_oil.csv')
+Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ci?ncia de Dados - UA/1? Ano/2? Semestre/S?ries Temporais/Trabalho Grupo/Time-Series-Project/brent_oil.csv')
 #Path Nuno
 #Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/Time-Series-Project/brent_oil.csv')
 Data
@@ -31,8 +31,27 @@ nrow(Data)
 head(Data,1)
 tail(Data,1)
 
+# check days by year ( Because the stock market isn't open everyday we don't have 365 values per year)
 With_date = subset(Data, select = -c(Open,High,Low,Volume,Currency) )
 With_date
+Dates = With_date$Date
+Dates
+
+years_list <- c("2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022")
+years_list
+length(years_list)
+years_count <- c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+years_count
+years_list
+
+for(i in Dates) {
+  year = strsplit(i, split = "-")[[1]][1]
+  id = which(year == years_list)
+  years_count[id] = years_count[id] + 1
+  
+}
+
+years_count
 
 #plot(With_date, ylab = "Date", xlab = "Close")
 
@@ -50,8 +69,8 @@ sd(Data[[1]])
 var(Data[[1]])
 
 #QQPlot
-#A analise do QQplot permite aferir a normalidade das variáveis a nível de representação gráfica
-#permite comparar a distribuição dos nossos dados com uma distribuição normal
+#A analise do QQplot permite aferir a normalidade das vari?veis a n?vel de representa??o gr?fica
+#permite comparar a distribui??o dos nossos dados com uma distribui??o normal
 
 qqnorm(Data[[1]], main="Normal QQPlot for Oil Prices by Brent Barrel")
 qqline(Data[[1]], col = "steelblue", lwd = 3, lty = 2)
@@ -62,8 +81,8 @@ hist(Data[[1]], main="Histogram for Oil Prices by Brent Barrel",
      xlim=c(0,160)) 
 
 
-###NOTA: P-VALUE<5% - REJEITA-SE H0 - EXISTE ESTACIONARIEDADE - INDÍCIOS DE WHITE NOISE
-###      P-VALUE>5% - NÃO REJEITA H0 - NÃO EXISTE ESTACIONARIEDADE - INDÍCIOS DE RANDOM WALK
+###NOTA: P-VALUE<5% - REJEITA-SE H0 - EXISTE ESTACIONARIEDADE - IND?CIOS DE WHITE NOISE
+###      P-VALUE>5% - N?O REJEITA H0 - N?O EXISTE ESTACIONARIEDADE - IND?CIOS DE RANDOM WALK
 
 ###############   WHITE NOISE VS RANDOM WALK   #########################
 
@@ -109,8 +128,8 @@ plot(decomp)  #seazonality?
 #-------------------------------------------------#
 
 
-## NOTA: ACF C/ Nº LAGS MENOR ATÉ VALOR DE 0 - MODELO MA
-##       PACF C/ Nº LAGS MENOR ATÉ VALOR DE 0 - MODELO AR
+## NOTA: ACF C/ N? LAGS MENOR AT? VALOR DE 0 - MODELO MA
+##       PACF C/ N? LAGS MENOR AT? VALOR DE 0 - MODELO AR
 
 ###############   ACF AND PACF   #########################
 
@@ -125,7 +144,7 @@ acf2(Data)
 #------------------#
 
 
-#APENAS O PRIMEIRO VALOR (LAG=1) NO PACF É SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1,0)
+#APENAS O PRIMEIRO VALOR (LAG=1) NO PACF ? SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1,0)
 
 ###############   MODEL AR/MA/ARMA/ARIMA/SARIMA   ######################
 fit=sarima(Data[[1]],1,1,0,0,0,0,0) 
@@ -137,7 +156,7 @@ fit=sarima(Data[[1]],1,1,0,0,0,0,0, no.constant=TRUE)
 fit
 #AIC = 3.536359
 
-#modelo com menor AIC é o melhor
+#modelo com menor AIC ? o melhor
 
 #residual analysis
 #look at the plots
