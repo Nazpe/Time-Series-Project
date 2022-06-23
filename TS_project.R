@@ -228,36 +228,73 @@ pacf(diff(DataList), 50, main="First difference")
 # Para Primeiras diferenças indica MA(1)
 
 ###############   MODEL AR/MA/ARMA/ARIMA/SARIMA   ######################
-DataList
-mts
 
+# com o modelo sem a frequencia obtivemos um modelo muito complexo (5,1,0), e (5,0,0) nas primeiras diferenças, por isso vamos usar com frequancia
+
+#AICc should especially be used when the ratio of your data points (n) : # of parameters (k) is < 40
 
 ??auto.arima
-Datafit_auto <- auto.arima(ts_Data_Add)
+Datafit_auto <- auto.arima(mts)
 Datafit_auto
 
-# Next 5 forecasted values
-forecast(Datafit_auto, 5)
+#ARIMA(0,1,1)
+#Coefficients:
+#  ma1
+#-0.0380
+#s.e.   0.0134
 
-# plotting the graph with next
-# 5 weekly forecasted values
-plot(forecast(Datafit_auto, 5), main="Oil Prices by Brent Barrel", ylab = "Oil Prices", xlab = "Date")
+#sigma^2 = 2.01:  log likelihood = -10194.93
+#AIC=20393.86   AICc=20393.86   BIC=20407.18
 
+fDatafit_auto <- auto.arima(mtsf)
+fDatafit_auto
 
+#ARIMA(0,0,1) with zero mean
+#Coefficients:
+#  ma1
+#-0.0380
+#s.e.   0.0134
 
+#sigma^2 = 2.01:  log likelihood = -10194.93
+#AIC=20393.86   AICc=20393.86   BIC=20407.18
 
-fit=sarima(Data[[1]],1,1,0,0,0,0,0) 
-fit# look at the significance of estimates 
-#constant is not significant since p.value=0.3605
-#AIC = 3.53656
+# Original Data
 
-fit=sarima(Data[[1]],1,1,0,0,0,0,0, no.constant=TRUE)
+fit=sarima(mts,0,1,1,0,0,0,0, no.constant=TRUE) 
 fit
-#AIC = 3.536359
+# look at the significance of estimates 
+#constant is not significant since p.value=0.3605
+# ma1 is significant p.value=0.0045
+#AIC = 3.536504
 
-z=c(1,-0.24,-0.19) #aqui as raizes tem de ser as da parte AR do modelo (tipo a parte pratica que fizemos na aula)
-raizes=polyroot(z)
-raizes
+#fit=sarima(mts,1,1,1,0,0,0,0)
+#fit
+#ar1 pvalue is not significant 0.2761
+#AIC = 3.536439
+
+fit=sarima(mts,0,2,1,0,0,0,0) 
+fit
+# ma pvalue = 0
+# aic 3.539228
+
+fit=sarima(mts,0,2,2,0,0,0,0) 
+fit
+
+fit=sarima(mts,0,1,1,0,0,0,0) 
+fit
+
+
+#first differences
+
+fit=sarima(mtsf,0,0,1,0,0,0) 
+fit
+
+fit=sarima(mtsf,0,1,1,0,0,0,0) 
+fit
+
+fit=sarima(mtsf,0,1,2,0,0,0,0) 
+fit
+
 
 #modelo com menor AIC ? o melhor
 
@@ -282,6 +319,23 @@ ks.test(res[0:5000], pnorm)
 
 
 ###############      FORECASTING      #########################
+
+# Next 5 forecasted values
+forecast(Datafit_auto, 50)
+
+
+# plotting the graph with next
+# 5 weekly forecasted values
+plot(forecast(Datafit_auto, 50), main="Oil Prices by Brent Barrel", ylab = "Oil Prices", xlab = "Date")
+
+# Next 5 forecasted values
+forecast(fDatafit_auto, 50)
+
+# plotting the graph with next
+# 5 weekly forecasted values
+plot(forecast(fDatafit_auto, 50), main="Oil Prices by Brent Barrel", ylab = "Oil Prices", xlab = "Date")
+
+
 
 BoxCox.lambda(Data[[1]])
 
