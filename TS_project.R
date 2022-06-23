@@ -8,7 +8,7 @@
 # https://www.geeksforgeeks.org/time-series-analysis-in-r/
 
 # no dia antes de entregar fazer download do csv e atualizar que aquilo é atualizado regularmente  
-# dataset: 
+# dataset: https://www.kaggle.com/datasets/psycon/historical-brent-oil-price-from-2000-to-202204?fbclid=IwAR3ivHyObwmquClyDICxJVM9UoehqR0dVTlWXDJLOVe_K2MmDpFnrUG00Jo
 
 ###############     LIBRARY      #########################
 
