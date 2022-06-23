@@ -1,7 +1,7 @@
 ##############        Time Series            #######################
 ##############           2021 /22                   #####################
-##############  Grupo : Ana Rita Cheganças Nº106433 #####################
-##############          Nuno Pedrosa Nº94471             #####################
+##############  Grupo : Ana Rita Chegan?as N?106433 #####################
+##############          Nuno Pedrosa N?94471             #####################
 
 # alguns sites interessantes...
 # https://a-little-book-of-r-for-time-series.readthedocs.io/en/latest/src/timeseries.html
@@ -54,6 +54,9 @@ for(i in Dates) {
 }
 
 years_count
+years_count = head(years_count, -1)
+years_count
+# let's continue with 258 values per year, because is the most usual vallue
 
 #plot(With_date, ylab = "Date", xlab = "Close")
 
@@ -105,7 +108,7 @@ kpss.test(Data[[1]], null = c("Level", "Trend"), lshort = TRUE)
 ###############     SEASONALITY     #########################
 
 #Model Additive
-ts_Data_Add = ts(Data, frequency = 300)
+ts_Data_Add = ts(Data, frequency = 258)
 DataComposeAdd <- decompose(ts_Data_Add, "additive")
 DataComposeAdd
 
@@ -116,7 +119,7 @@ plot(DataComposeAdd)
 
 
 #Model Multiplicative
-ts_Data_Multi = ts(Data, frequency = 300)
+ts_Data_Multi = ts(Data, frequency = 258)
 DataComposeMulti <- decompose(ts_Data_Multi, "multiplicative")
 DataComposeMulti
 
@@ -161,7 +164,7 @@ fit=sarima(Data[[1]],1,1,0,0,0,0,0, no.constant=TRUE)
 fit
 #AIC = 3.536359
 
-#modelo com menor AIC é o melhor
+#modelo com menor AIC ? o melhor
 
 #residual analysis
 #look at the plots
