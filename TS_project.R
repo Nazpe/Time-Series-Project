@@ -1,13 +1,14 @@
-##############        S?ries Temporais            #######################
+##############        Time Series            #######################
 ##############           2021 /22                   #####################
-##############  Grupo : Ana Rita Chegan?as N?106433 #####################
-##############          Nuno Pedrosa N?94471             #####################
+##############  Grupo : Ana Rita Cheganças Nº106433 #####################
+##############          Nuno Pedrosa Nº94471             #####################
 
 # alguns sites interessantes...
 # https://a-little-book-of-r-for-time-series.readthedocs.io/en/latest/src/timeseries.html
 # https://www.geeksforgeeks.org/time-series-analysis-in-r/
 
 # no dia antes de entregar fazer download do csv e atualizar que aquilo Ã© atualizado regularmente  
+# dataset: 
 
 ###############     LIBRARY      #########################
 library(car)
@@ -100,6 +101,7 @@ kpss.test(Data[[1]], null = c("Level", "Trend"), lshort = TRUE)
 
 
 ###############     SEASONALITY     #########################
+
 #Model Additive
 ts_Data_Add = ts(Data, frequency = 300)
 DataComposeAdd <- decompose(ts_Data_Add, "additive")
@@ -156,7 +158,7 @@ fit=sarima(Data[[1]],1,1,0,0,0,0,0, no.constant=TRUE)
 fit
 #AIC = 3.536359
 
-#modelo com menor AIC ? o melhor
+#modelo com menor AIC é o melhor
 
 #residual analysis
 #look at the plots
