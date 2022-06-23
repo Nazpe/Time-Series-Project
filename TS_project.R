@@ -11,6 +11,7 @@
 # dataset: 
 
 ###############     LIBRARY      #########################
+
 library(car)
 library(tseries)
 library(astsa)
@@ -95,6 +96,7 @@ plot.ts(Data, main="Oil Prices by Brent Barrel", ylab = "Oil Prices", xlab = "Da
 
 
 ###############     STATIONARITY     #########################
+
 adf.test(Data[[1]])
 
 kpss.test(Data[[1]], null = c("Level", "Trend"), lshort = TRUE)
@@ -149,6 +151,7 @@ acf2(Data)
 #APENAS O PRIMEIRO VALOR (LAG=1) NO PACF ? SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1,0)
 
 ###############   MODEL AR/MA/ARMA/ARIMA/SARIMA   ######################
+
 fit=sarima(Data[[1]],1,1,0,0,0,0,0) 
 fit# look at the significance of estimates 
 #constant is not significant since p.value=0.3605
