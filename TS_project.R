@@ -478,6 +478,37 @@ plot(forecast(lfDatafit_s, 200), main="Gold Prices in USD", ylab = "Prices", xla
 BoxCox.lambda(Data[[1]])
 # Não percebi bem mas pronto xD
 
+#### talvez isto de jeito
+
+######### How to forecast????
+require("astsa")
+
+prev<-sarima.for(lx,12,0,1,1,0,1,1,12)
+
+prev
+
+exp(prev$pred)
+
+#fcast<-forecast.arima(smodel, lambda=0)
+
+
+
+##### Using automatic modeling
+
+
+library(forecast)
+library(fpp2)
+
+fit <- auto.arima(lx, max.P=5,max.Q=3,D=1)
+fit
+
+ndiff() #number of differences that we shoud use
+nsdiff() #number of differences in seasonal component that we shoud use
+
+auto.arima(x, , lambda=0)
+fit<-auto.arima(x, lambda=0)
+fcast<-forecast.arima(fit, lambda=0)
+
 
 ##################### Exponential Smothing methods for forecast ###############################
 
