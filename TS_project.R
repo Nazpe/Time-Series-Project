@@ -349,40 +349,43 @@ lDatafit
 
 #Log and first differences
 
-lfDatafit=sarima(train_mtslf,1,0,2,0,0,0,0) 
+lfDatafit=sarima(train_mtslf,3,0,3,0,0,0,0) 
 lfDatafit
 
 #Coefficients:
-#  ar1     ma1      ma2  xmean
-#-0.7623  0.6946  -0.0900  3e-04
-#s.e.   0.0810  0.0813   0.0133  1e-04
+#  ar1     ar2     ar3     ma1      ma2      ma3  xmean
+#-0.6040  0.5219  0.7444  0.5476  -0.5743  -0.7172  3e-04
+#s.e.   0.1188  0.1378  0.0867  0.1170   0.1214   0.0830  1e-04
 
-#sigma^2 estimated as 0.0001459:  log likelihood = 16643.57,  aic = -33277.14
+#sigma^2 estimated as 0.0001454:  log likelihood = 16654.59,  aic = -33293.18
 
 #$degrees_of_freedom
-#[1] 5549
+#[1] 5546
 
 #$ttable
 #Estimate     SE t.value p.value
-#ar1    -0.7623 0.0810 -9.4099  0.0000
-#ma1     0.6946 0.0813  8.5398  0.0000
-#ma2    -0.0900 0.0133 -6.7822  0.0000
-#xmean   0.0003 0.0001  2.2008  0.0278
+#ar1    -0.6040 0.1188 -5.0847  0.0000
+#ar2     0.5219 0.1378  3.7871  0.0002
+#ar3     0.7444 0.0867  8.5831  0.0000
+#ma1     0.5476 0.1170  4.6814  0.0000
+#ma2    -0.5743 0.1214 -4.7297  0.0000
+#ma3    -0.7172 0.0830 -8.6434  0.0000
+#xmean   0.0003 0.0001  2.6783  0.0074
 
 #$AIC
-#[1] -5.992643
+#[1] -5.99553
 
 #$AICc
-#[1] -5.992641
+#[1] -5.995526
 
 #$BIC
-#[1] -5.98668
+#[1] -5.98599
 
 lDatafit_s=Arima(train_mtsl, order=c(1,1,2)) 
 lDatafit_s
 summary(lDatafit_s$fit)
 
-lfDatafit_s=Arima(train_mtslf, order=c(1,0,2)) 
+lfDatafit_s=Arima(train_mtslf, order=c(3,0,3)) 
 lfDatafit_s
 summary(lfDatafit_s$fit)
 
@@ -395,16 +398,6 @@ summary(lfDatafit_s$fit)
 # The “residuals” in a time series model are what is left over after fitting a model.
 # Residuals are useful in checking whether a model has adequately captured the information in the data
 # site https://otexts.com/fpp2/residuals.html
-
-#look at the plots
-lDatafit_s=Arima(train_mtsl, order=c(1,1,2)) 
-lDatafit_s
-summary(lDatafit_s$fit)
-
-lfDatafit_s=Arima(train_mtslf, order=c(1,0,2)) 
-lfDatafit_s
-summary(lfDatafit_s$fit)
-
 
 lres=residuals(lDatafit$fit)
 
@@ -421,20 +414,15 @@ var(lfres)
 ??Box.Test
 
 Box.test(lres, lag=10, type = "Ljung-Box")
-Box.test(lfres, lag=10, type = "Ljung-Box")
-
 #  based on Ljung-Box test, we don't accepted the null hypothesis  that the residuals are white noise. (no correlation)
-# In both models, so they are correlated
+Box.test(lfres, lag=10, type = "Ljung-Box")
+#  based on Ljung-Box test, we accept the null hypothesis  that the residuals are white noise. (no correlation)
 
-#global test ,  for residuals noncorrelation
-
-# para lag maior já dava correlation, ver se é imp....
 Box.test(lres, lag=10, type='Box-Pierce') #global test  for residuals noncorrelation
 #p-value = 0.04201 reject no correlation 
 Box.test(lfres, lag=10, type='Box-Pierce')
-#p-value = 0.04103 reject no correlation 
+#p-value = 0.5185 don't reject no correlation 
 
-# Here for lag 9 we have no correlation and for others....
 
 ?shapiro.test
 # ve normalidade dos dados
@@ -460,7 +448,7 @@ par(mfrow=c(1,1))
 # Next 200 forecasted values
 forecast(lDatafit_s, 200)
 
-accuracy(forecast(lDatafit_s, 200))
+accuracy(forecast(lDatafit_s, 200), test_mtsl)
 
 # plotting the graph with next
 # 200 weekly forecasted values
@@ -469,7 +457,7 @@ plot(forecast(lDatafit_s, 200), main="Gold Prices in USD", ylab = "Prices", xlab
 # Next 200 forecasted values
 forecast(lfDatafit_s, 200)
 
-accuracy(forecast(lfDatafit_s, 200))
+accuracy(forecast(lfDatafit_s, 200), test_mtslf)
 
 # plotting the graph with next
 # 200 forecasted values
@@ -479,26 +467,19 @@ plot(forecast(lfDatafit_s, 200), main="Gold Prices in USD", ylab = "Prices", xla
 BoxCox.lambda(Data[[1]])
 # Não percebi bem mas pronto xD
 
+lprev<-sarima.for(train_mtsl,10,1,1,2)
 
-library(fpp2)
+lprev
 
-prev<-sarima.for(train_mtslf,10,1,1,2)
 
-prev
+lfprev<-sarima.for(train_mtslf,10,3,0,3)
 
-exp(prev$pred)
-
-prev<-sarima.for(train_mtsl,10,1,0,2)
-
-prev
-
-exp(prev$pred)
-
+lfprev
 
 
 ##################### Exponential Smothing methods for forecast ###############################
 
-# Esta parte tá só um monte de copiar colar randoms
+#### Esta parte tá só um monte de copiar colar randoms talvez se ignore ####
 
 install.packages("fpp", dependencies=TRUE)
 library(fpp)
@@ -563,9 +544,9 @@ par(mfrow=c(4,1))
 plot(DataList)
 
 # esta frequancia não dá não sei porque
-aus1 <- hw(ts(Data, frequency = 258)) #additive seas
-aus2 <- hw(ts(Data, frequency = 258), seasonal="mult")
-aus3 <- hw(ts(Data, frequency = 258), seasonal="mult",damped=TRUE)
+aus1 <- hw(ts(Data, frequency = 12)) #additive seas
+aus2 <- hw(ts(Data, frequency = 12), seasonal="mult")
+aus3 <- hw(ts(Data, frequency = 12), seasonal="mult",damped=TRUE)
 summary(aus1)
 summary(aus2)
 summary(aus3);
