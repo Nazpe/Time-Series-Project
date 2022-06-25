@@ -17,6 +17,8 @@ library(tseries)
 library(astsa)
 library(forecast)
 library(lubridate)
+#library(sarima)
+
 
 
 ###############   LOADING AND TRANSFORMING THE DATA   #########################
@@ -315,12 +317,73 @@ lfDatafit_auto
 lDatafit=sarima(train_mtsl,1,1,2,0,0,0,0) 
 lDatafit
 
+#Coefficients:
+#  ar1     ma1      ma2  constant
+#-0.7656  0.6979  -0.0901     3e-04
+#s.e.   0.0800  0.0803   0.0133     1e-04
+
+#sigma^2 estimated as 0.000146:  log likelihood = 16640.32,  aic = -33270.65
+
+#$degrees_of_freedom
+#[1] 5548
+
+#$ttable
+#Estimate     SE t.value p.value
+#ar1       -0.7656 0.0800 -9.5702  0.0000
+#ma1        0.6979 0.0803  8.6894  0.0000
+#ma2       -0.0901 0.0133 -6.7890  0.0000
+#constant   0.0003 0.0001  2.2470  0.0247
+
+#$AIC
+#[1] -5.992552
+
+#$AICc
+#[1] -5.992551
+
+#$BIC
+#[1] -5.986589
+
+
 # experimentei um bocado e este parece ser mesmo o melhor
 
 #Log and first differences
 
 lfDatafit=sarima(train_mtslf,1,0,2,0,0,0,0) 
 lfDatafit
+
+#Coefficients:
+#  ar1     ma1      ma2  xmean
+#-0.7623  0.6946  -0.0900  3e-04
+#s.e.   0.0810  0.0813   0.0133  1e-04
+
+#sigma^2 estimated as 0.0001459:  log likelihood = 16643.57,  aic = -33277.14
+
+#$degrees_of_freedom
+#[1] 5549
+
+#$ttable
+#Estimate     SE t.value p.value
+#ar1    -0.7623 0.0810 -9.4099  0.0000
+#ma1     0.6946 0.0813  8.5398  0.0000
+#ma2    -0.0900 0.0133 -6.7822  0.0000
+#xmean   0.0003 0.0001  2.2008  0.0278
+
+#$AIC
+#[1] -5.992643
+
+#$AICc
+#[1] -5.992641
+
+#$BIC
+#[1] -5.98668
+
+lDatafit_s=Arima(train_mtsl, order=c(1,1,2)) 
+lDatafit_s
+summary(lDatafit_s$fit)
+
+lfDatafit_s=Arima(train_mtslf, order=c(1,0,2)) 
+lfDatafit_s
+summary(lfDatafit_s$fit)
 
 # experimentei um bocado e este parece ser mesmo o melhor
 # equilibrio entre ser melhor e simples
@@ -333,71 +396,88 @@ lfDatafit
 # site https://otexts.com/fpp2/residuals.html
 
 #look at the plots
-summary(lDatafit$fit)
-summary(lfDatafit$fit)
+lDatafit_s=Arima(train_mtsl, order=c(1,1,2)) 
+lDatafit_s
+summary(lDatafit_s$fit)
+
+lfDatafit_s=Arima(train_mtslf, order=c(1,0,2)) 
+lfDatafit_s
+summary(lfDatafit_s$fit)
 
 
-res=residuals(sarima(Data[[1]],1,1,0,0,0,0,0, no.constant=TRUE)$fit)
+lres=residuals(lDatafit$fit)
 
-res
-mean(res)
-var(res)
+lres
+mean(lres)
+var(lres)
 
-Box.test(res,lag=10, type='Box-Pierce') #global test until lag=10,  for residuals noncorrelation
-#p-value = 0.002972 reject no correlation (till lag 10)
+lfres=residuals(lfDatafit$fit)
 
-shapiro.test(res[0:5000]) # normality test p-value =0.4494>0.05
+lfres
+mean(lfres)
+var(lfres)
 
-# este dá um erro com os nossos dados não sei porque???
-ks.test(res, pnorm,mean(res),sqrt(var(res)))
-ks.test(res[0:5000], pnorm)
+??Box.Test
+
+Box.test(lres, lag=10, type = "Ljung-Box")
+Box.test(lfres, lag=10, type = "Ljung-Box")
+
+#  based on Ljung-Box test, we don't accepted the null hypothesis  that the residuals are white noise. (no correlation)
+# In both models, so they are correlated
+
+#global test ,  for residuals noncorrelation
+
+# para lag maior já dava correlation, ver se é imp....
+Box.test(lres, lag=10, type='Box-Pierce') #global test  for residuals noncorrelation
+#p-value = 0.04201 reject no correlation 
+Box.test(lfres, lag=10, type='Box-Pierce')
+#p-value = 0.04103 reject no correlation 
+
+# Here for lag 9 we have no correlation and for others....
+
+?shapiro.test
+# ve normalidade dos dados
+
+shapiro.test(lres[0:5000]) 
+# Log data não é normal p value < 2.2e-16
+shapiro.test(lfres[0:5000]) 
+# Log first difference data não é normal p value < 2.2e-16
+
+?ks.test
+
+ks.test(lres, pnorm,mean(lres),sqrt(var(lres)))
+# Log data não é normal p value < 2.2e-16
+
+ks.test(lfres, pnorm,mean(lres),sqrt(var(lres)))
+# Log data não é normal p value < 2.2e-16
 
 
 ###############      FORECASTING      #########################
 
-# Next 5 forecasted values
-forecast(Datafit_auto, 50)
+par(mfrow=c(1,1))
 
+# Next 200 forecasted values
+forecast(lDatafit_s, 200)
 
-# plotting the graph with next
-# 5 weekly forecasted values
-plot(forecast(Datafit_auto, 50), main="Oil Prices by Brent Barrel", ylab = "Oil Prices", xlab = "Date")
-
-# Next 5 forecasted values
-forecast(fDatafit_auto, 50)
+accuracy(forecast(lDatafit_s, 200))
 
 # plotting the graph with next
-# 5 weekly forecasted values
-plot(forecast(fDatafit_auto, 50), main="Oil Prices by Brent Barrel", ylab = "Oil Prices", xlab = "Date")
+# 200 weekly forecasted values
+plot(forecast(lDatafit_s, 200), main="Gold Prices in USD", ylab = "Prices", xlab = "Date")
 
+# Next 200 forecasted values
+forecast(lfDatafit_s, 200)
 
+accuracy(forecast(lfDatafit_s, 200))
 
+# plotting the graph with next
+# 200 forecasted values
+plot(forecast(lfDatafit_s, 200), main="Gold Prices in USD", ylab = "Prices", xlab = "Date")
+
+#  it is very useful to transform a variable and hence to obtain a new variable that follows a normal distribution.
 BoxCox.lambda(Data[[1]])
+# Não percebi bem mas pronto xD
 
-require("astsa")
-
-prev<-sarima.for(Data,12,0,1,1,0,1,1,12) # tem de se mudar os valores
-?sarima.for
-
-prev
-
-exp(prev$pred)
-
-#fcast<-forecast.arima(smodel, lambda=0)
-
-library(forecast)
-library(fpp2)
-library(fpp)
-
-fit <- auto.arima(Data, max.P=5,max.Q=3,D=1)
-fit
-
-ndiff() #number of differences that we shoud use
-nsdiff() #number of differences in seasonal component that we shoud use
-
-auto.arima(Data, , lambda=0)
-fit<-auto.arima(Data, lambda=0)
-fcast<-forecast.arima(fit, lambda=0)
 
 ##################### Exponential Smothing methods for forecast ###############################
 
