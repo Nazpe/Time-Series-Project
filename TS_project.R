@@ -22,9 +22,9 @@ library(lubridate)
 ###############   LOADING AND TRANSFORMING THE DATA   #########################
 
 #Path Rita
-Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ci?ncia de Dados - UA/1? Ano/2? Semestre/S?ries Temporais/Trabalho Grupo/Time-Series-Project/brent_oil.csv')
+#Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ci?ncia de Dados - UA/1? Ano/2? Semestre/S?ries Temporais/Trabalho Grupo/Time-Series-Project/gold.csv')
 #Path Nuno
-Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/brent_oil.csv')
+Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/gold.csv')
 Data
 
 # number of rows
@@ -58,11 +58,11 @@ years_count
 years_count = head(years_count, -1)
 years_count
 mean(years_count)
-# let's continue with 258 values per year, because is the most usual vallue
+# let's continue with 255 values per year, is the mean of values by year
 
-#plot(With_date, ylab = "Date", xlab = "Close")
 
 #Final data
+Data
 rownames(Data) <- Data[,1]
 Data = subset(Data, select = -c(Date,Open,High,Low,Volume,Currency) )
 Data
@@ -83,13 +83,13 @@ var(Data[[1]])
 #A analise do QQplot permite aferir a normalidade das vari?veis a n?vel de representa??o gr?fica
 #permite comparar a distribui??o dos nossos dados com uma distribui??o normal
 
-
-qqnorm(Data[[1]], main="Normal QQPlot for Oil Prices by Brent Barrel")
+qqnorm(Data[[1]], main="Normal QQPlot for Gold Prices in USD")
 qqline(Data[[1]], col = "steelblue", lwd = 3, lty = 2)
 
+# Não funciona não sei porque
 #Histogram
-hist(Data[[1]], main="Histogram for Oil Prices by Brent Barrel",
-     xlab = "Oil Prices", col="grey",
+hist(Data[[1]], main="Histogram for Gold Prices in USD",
+     xlab = "Gold Prices", col="grey",
      xlim=c(0,160)) 
 
 
@@ -99,30 +99,48 @@ hist(Data[[1]], main="Histogram for Oil Prices by Brent Barrel",
 ###############   DATA EXPLORATION   #########################
 
 mts <- ts(DataList, start = decimal_date(ymd("2000-01-04")),
-          frequency = 256.7273)
+          frequency = 255.333)
 
 #Plot the data 
-plot.ts(mts, main="Oil Prices by Brent Barrel", ylab = "Oil Prices", xlab = "Date")
+plot.ts(mts, main="Gold Prices in USD", ylab = "Gold Prices", xlab = "Date")
 #?plot.ts
 
-# será que deviamos tirar a trend aos dados? Isto tira?
 # First difference of the data
 # Other way of considering the stabilization in mean: get the series with one difference
 # Tirou a trend, ou seja deve ser em AR 1
 fData=diff(DataList)
-
-par(mfrow=c(1,1))
+lData=log(DataList)
+lfData=diff(log(DataList))
 
 mtsf <- ts(fData, start = decimal_date(ymd("2000-01-04")),
-          frequency = 256.7273)
+          frequency = 255.333)
 
-plot.ts(mtsf, main="Oil Prices by Brent Barrel", ylab = "Oil Prices", xlab = "Date")
+mtsl <- ts(lData, start = decimal_date(ymd("2000-01-04")),
+           frequency = 255.333)
+
+mtslf <- ts(lfData, start = decimal_date(ymd("2000-01-04")),
+           frequency = 255.333)
+
+mean(DataList)
+var(DataList)
 
 mean(fData)
 var(fData)
-plot.ts(fData)
 
-# O Log não faz sentido, não é exponencial
+mean(lData)
+var(lData)
+
+mean(lfData)
+var(lfData)
+
+par(mfrow=c(2,2))
+
+plot.ts(mts, main="Normal", ylab = "Gold Prices", xlab = "Date")
+plot.ts(mtsf, main="First Differences", ylab = "Gold Prices", xlab = "Date")
+plot.ts(mtsl, main="Log", ylab = "Gold Prices", xlab = "Date")
+plot.ts(mtslf, main="Log and First Differences", ylab = "Gold Prices", xlab = "Date")
+
+# De agora a diante vamos apenas considerar o log Data e log e first difference Data, melhorou muito
 
 ###############     STATIONARITY     #########################
 # site https://www.analyticsvidhya.com/blog/2021/06/statistical-tests-to-check-stationarity-in-time-series-part-1/
@@ -131,37 +149,36 @@ plot.ts(fData)
 
 ?adf.test
 adf.test(mts)
-# Os dados originais não são estacionários
+# Os dados log não são estacionários
 # The p-value is obtained is greater than significance level of 0.05 
 # Clearly, there is no reason to reject the null hypothesis. So, the time series is in fact non-stationary.
 
-adf.test(mtsf)
-# Os dados com primeiras diferenças são estacionários
+adf.test(mtslf)
+# Os dados com log e primeiras diferenças são estacionários
 # The p-value is obtained is smaller than significance level of 0.05 
 # Clearly, we can reject the null hypothesis. So, the time series is in fact stationary.
 
 
 ?kpss.test
-kpss.test(mts, null = c("Level", "Trend"), lshort = TRUE)
-# Os dados normais são estacionários
+kpss.test(mtsl, null = c("Level", "Trend"), lshort = TRUE)
+# Os dados log são estacionários
 # The p-value is obtained is smaller than significance level of 0.05 
 # Clearly, we can reject the null hypothesis. So, the time series is in fact stationary.
 
-kpss.test(mtsf, null = c("Level", "Trend"), lshort = TRUE)
-# Os dados com primeiras diferenças não são estacionários
-# The p-value is obtained is greater than significance level of 0.05 
-# Clearly, there is no reason to reject the null hypothesis. So, the time series is in fact non-stationary.
+kpss.test(mtslf, null = c("Level", "Trend"), lshort = TRUE)
+# Os dados com log e primeiras diferenças  são estacionários
+# The p-value is obtained is smaller than significance level of 0.05 
+# Clearly, we can reject the null hypothesis. So, the time series is in fact stationary.
 
 # ADF test indicates your series does not have a unit root. This is not the same as stationarity. E.g. your series may have variance that is growing with time, a sinusoidal time trend or yet something else making it nonstationary. Something like that might be what the KPSS test is picking up.
 
 
 ###############     SEASONALITY     #########################
 
-#### Original Data
+#### Log Data
 
 #Model Additive
-#ts_Data_Add = ts(Data, frequency = 258)
-DataComposeAdd <- decompose(mts, "additive")
+DataComposeAdd <- decompose(mtsl, "additive")
 DataComposeAdd
 
 plot(as.ts(DataComposeAdd$seasonal))
@@ -171,8 +188,7 @@ plot(DataComposeAdd)
 
 
 #Model Multiplicative
-#ts_Data_Multi = ts(Data, frequency = 258)
-DataComposeMulti <- decompose(mts, "multiplicative")
+DataComposeMulti <- decompose(mtsl, "multiplicative")
 DataComposeMulti
 
 plot(as.ts(DataComposeMulti$seasonal))
@@ -184,7 +200,7 @@ plot(DataComposeMulti)
 
 #Model Additive
 #tsf_Data_Add = ts(fData, frequency = 258)
-DataComposeAddf <- decompose(mtsf, "additive")
+DataComposeAddf <- decompose(mtslf, "additive")
 DataComposeAddf
 
 plot(as.ts(DataComposeAddf$seasonal))
@@ -195,7 +211,7 @@ plot(DataComposeAddf)
 
 #Model Multiplicative
 #tsf_Data_Multi = ts(fData, frequency = 258)
-DataComposeMultif <- decompose(mtsf, "multiplicative")
+DataComposeMultif <- decompose(mtslf, "multiplicative")
 DataComposeMultif
 
 plot(as.ts(DataComposeMultif$seasonal))
@@ -211,96 +227,115 @@ plot(DataComposeMultif)
 #------------------#
 acf2(DataList)
 acf2(fData)
-# perguntar stora
 #------------------#
 
 par(mfrow=c(2,2))
 
-acf(DataList, 50, main="Global Data")
-acf(diff(DataList), 50, main="First difference")
+acf(lData, 100, main="Log Data")
+acf(lfData, 100, main="Log and First difference")
 
-pacf(DataList, 50, main="Global Data")
-pacf(diff(DataList), 50, main="First difference")
+pacf(lData, 100, main="Log Data")
+pacf(lfData, 100, main="Log and First difference")
 
-# Para Data normal, APENAS O PRIMEIRO VALOR (LAG=1) NO PACF ? SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1)
+# isto pode ser modelos arima, nesse caso não se pode concluir, mas sugere-se que:
+
+# Para Data log, APENAS O PRIMEIRO VALOR (LAG=1) NO PACF ? SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1)
 #APENAS O PRIMEIRO VALOR (LAG=1) NO PACF ? SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1)
 
-# Para Primeiras diferenças indica MA(1)
+# Para Log e Primeiras diferenças indica MA(1)
+
+############### Train Test Split #################
+
+# As our data is very irregular, we can't have a big test data (values very far way from the last know value will have a higher chance of being wrong)
+# We will use the last 200 entrys for test set (about a year)
+
+test_mts = tail(mts,200)
+test_mts
+train_mts = head(mts, length(mts) - 200)
+train_mts
+
+test_mtsf = tail(mtsf,200)
+test_mtsf
+train_mtsf = head(mtsf, length(mts) - 200)
+train_mtsf
+
+test_mtsl = tail(mtsl,200)
+test_mtsl
+train_mtsl = head(mtsl, length(mts) - 200)
+train_mtsl
+
+test_mtslf = tail(mtslf,200)
+test_mtslf
+train_mtslf = head(mtslf, length(mts) - 200)
+train_mtslf
+
+par(mfrow=c(2,2))
+
+plot.ts(train_mts, main="Normal", ylab = "Gold Prices", xlab = "Date")
+plot.ts(train_mtsf, main="First Differences", ylab = "Gold Prices", xlab = "Date")
+plot.ts(train_mtsl, main="Log", ylab = "Gold Prices", xlab = "Date")
+plot.ts(train_mtslf, main="Log and First Differences", ylab = "Gold Prices", xlab = "Date")
+
 
 ###############   MODEL AR/MA/ARMA/ARIMA/SARIMA   ######################
 
-# com o modelo sem a frequencia obtivemos um modelo muito complexo (5,1,0), e (5,0,0) nas primeiras diferenças, por isso vamos usar com frequancia
 
 #AICc should especially be used when the ratio of your data points (n) : # of parameters (k) is < 40
 
 ??auto.arima
-Datafit_auto <- auto.arima(mts)
-Datafit_auto
+lDatafit_auto <- auto.arima(train_mtsl) # lData gives the same results ( if with split)
+lDatafit_auto
 
-#ARIMA(0,1,1)
+#ARIMA(2,1,2) with drift 
+
 #Coefficients:
-#  ma1
-#-0.0380
-#s.e.   0.0134
+#  ar1      ar2     ma1     ma2  drift
+#-1.3697  -0.6872  1.3173  0.6160  3e-04
+#s.e.   0.1465   0.1585  0.1584  0.1726  2e-04
 
-#sigma^2 = 2.01:  log likelihood = -10194.93
-#AIC=20393.86   AICc=20393.86   BIC=20407.18
+#sigma^2 = 0.0001459:  log likelihood = 16644.45
+#AIC=-33276.89   AICc=-33276.88   BIC=-33237.16
 
-fDatafit_auto <- auto.arima(mtsf)
-fDatafit_auto
+lfDatafit_auto <- auto.arima(train_mtslf) # lfData gives the same results ( if with split)
+lfDatafit_auto
 
-#ARIMA(0,0,1) with zero mean
+#ARIMA(3,0,4) with non-zero mean 
+
 #Coefficients:
-#  ma1
-#-0.0380
-#s.e.   0.0134
+#  ar1     ar2     ar3     ma1      ma2      ma3     ma4   mean
+#-0.6147  0.5880  0.8093  0.5472  -0.6499  -0.7668  0.0275  3e-04
+#s.e.   0.0651  0.0571  0.0578  0.0664   0.0572   0.0593  0.0177  1e-04
 
-#sigma^2 = 2.01:  log likelihood = -10194.93
-#AIC=20393.86   AICc=20393.86   BIC=20407.18
+#sigma^2 = 0.0001455:  log likelihood = 16655.72
+#AIC=-33293.44   AICc=-33293.41   BIC=-33233.84
 
-# Original Data
+# Log Data
+?sarima
 
-fit=sarima(mts,0,1,1,0,0,0,0, no.constant=TRUE) 
-fit
-# look at the significance of estimates 
-#constant is not significant since p.value=0.3605
-# ma1 is significant p.value=0.0045
-#AIC = 3.536504
+lDatafit=sarima(train_mtsl,1,1,2,0,0,0,0) 
+lDatafit
 
-#fit=sarima(mts,1,1,1,0,0,0,0)
-#fit
-#ar1 pvalue is not significant 0.2761
-#AIC = 3.536439
+# experimentei um bocado e este parece ser mesmo o melhor
 
-fit=sarima(mts,0,2,1,0,0,0,0) 
-fit
-# ma pvalue = 0
-# aic 3.539228
+#Log and first differences
 
-fit=sarima(mts,0,2,2,0,0,0,0) 
-fit
+lfDatafit=sarima(train_mtslf,1,0,2,0,0,0,0) 
+lfDatafit
 
-fit=sarima(mts,0,1,1,0,0,0,0) 
-fit
+# experimentei um bocado e este parece ser mesmo o melhor
+# equilibrio entre ser melhor e simples
 
+#modelo com menor AIC o melhor com p value menor que 0.05
 
-#first differences
+################## residual analysis ######################
+# The “residuals” in a time series model are what is left over after fitting a model.
+# Residuals are useful in checking whether a model has adequately captured the information in the data
+# site https://otexts.com/fpp2/residuals.html
 
-fit=sarima(mtsf,0,0,1,0,0,0) 
-fit
-
-fit=sarima(mtsf,0,1,1,0,0,0,0) 
-fit
-
-fit=sarima(mtsf,0,1,2,0,0,0,0) 
-fit
-
-
-#modelo com menor AIC ? o melhor
-
-#residual analysis
 #look at the plots
-summary(sarima(Data[[1]],1,1,0,0,0,0,0, no.constant=TRUE)$fit)
+summary(lDatafit$fit)
+summary(lfDatafit$fit)
+
 
 res=residuals(sarima(Data[[1]],1,1,0,0,0,0,0, no.constant=TRUE)$fit)
 
