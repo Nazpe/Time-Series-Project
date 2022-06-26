@@ -26,9 +26,9 @@ library(sarima)
 ###############   LOADING AND TRANSFORMING THE DATA   #########################
 
 #Path Rita
-Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ciência de Dados - UA/1º Ano/2º Semestre/Séries Temporais/Trabalho Grupo/Time-Series-Project/gold.csv')
+#Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ci?ncia de Dados - UA/1? Ano/2? Semestre/S?ries Temporais/Trabalho Grupo/Time-Series-Project/gold.csv')
 #Path Nuno
-#Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/gold.csv')
+Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/gold.csv')
 View(Data)
 
 # number of rows
@@ -438,19 +438,20 @@ ks.test(lfres, pnorm,mean(lfres),sqrt(var(lfres)))
 
 
 ##############       EXPONENTIAL SMOTHING METHODS      ###############################
+?ets
 
 #dataset log
 lETSDatafit_s = ets(train_mtsl)
 print(summary(lETSDatafit_s))
 checkresiduals(lETSDatafit_s)
 
-#dataset log and 1ª differences
+#dataset log and 1? differences
 lfETSDatafit_s = ets(train_mtslf)
 print(summary(lfETSDatafit_s))
 checkresiduals(lfETSDatafit_s)
 
 #residual analysis - log
-lETSres=residuals(lETSDatafit_s$fit)
+lETSres=residuals(lETSDatafit_s)
 lETSres
 mean(lETSres)
 var(lETSres)
@@ -460,8 +461,8 @@ shapiro.test(lETSres[0:5000])
 ks.test(lETSres, pnorm,mean(lETSres),sqrt(var(lETSres)))
 
 
-#residual analysis - log and 1ª differences
-lfETSres=residuals(lfETSDatafit_s$fit)
+#residual analysis - log and first differences
+lfETSres=residuals(lfETSDatafit_s)
 lfETSres
 mean(lfETSres)
 var(lfETSres)
@@ -481,28 +482,28 @@ forecast(lDatafit_s, 200)
 accuracy(forecast(lDatafit_s, 200), test_mtsl)
 # plotting the graph with next
 # 200 weekly forecasted values
-plot(forecast(lDatafit_s, 200), main="Prediction Gold Prices for log dataset (ARIMA MODEL)", ylab = "Prices", xlab = "Date")
+plot(forecast(lDatafit_s, 200), main="Prediction Gold Prices for log dataset (ARIMA MODEL)", ylab = "Prices", xlab = "Date", xlim=c(2018, 2023), ylim=c(7,8))
 
 # Next 200 forecasted values
 forecast(lfDatafit_s, 200)
 accuracy(forecast(lfDatafit_s, 200), test_mtslf)
 # plotting the graph with next
 # 200 forecasted values
-plot(forecast(lfDatafit_s, 200), main="Prediction Gold Prices for log and 1ª difference dataset (ARIMA MODEL)", ylab = "Prices", xlab = "Date")
+plot(forecast(lfDatafit_s, 200), main="Prediction Gold Prices for log and first difference dataset (ARIMA MODEL)", ylab = "Prices", xlab = "Date", xlim=c(2018, 2023))
 
 # Next 200 forecasted values
 forecast(lETSDatafit_s, 200)
 accuracy(forecast(lETSDatafit_s, 200), test_mtsl)
 # plotting the graph with next
 # 200 forecasted values
-plot(forecast(lETSDatafit_s, 200), main="Prediction Gold Prices for log dataset (ETS MODEL)", ylab = "Prices", xlab = "Date")
+plot(forecast(lETSDatafit_s, 200), main="Prediction Gold Prices for log dataset (ETS MODEL)", ylab = "Prices", xlab = "Date", xlim=c(2018, 2023), ylim=c(7,8))
 
 # Next 200 forecasted values
 forecast(lfETSDatafit_s, 200)
 accuracy(forecast(lfETSDatafit_s, 200), test_mtslf)
 # plotting the graph with next
 # 200 forecasted values
-plot(forecast(lfETSDatafit_s, 200), main="Prediction Gold Prices for log and 1ª difference dataset (ETS MODEL)", ylab = "Prices", xlab = "Date")
+plot(forecast(lfETSDatafit_s, 200), main="Prediction Gold Prices for log and first difference dataset (ETS MODEL)", ylab = "Prices", xlab = "Date", xlim=c(2018, 2023))
 
 
 
