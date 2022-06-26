@@ -469,7 +469,7 @@ plot(forecast(lfDatafit_s, 200), main="Gold Prices in USD", ylab = "Prices", xla
 BoxCox.lambda(Data[[1]])
 # Não percebi bem mas pronto xD
 
-lprev<-sarima.for(train_mtsl,10,1,1,2)
+lprev<-sarima.for(train_mtsl,200,1,1,2)
 
 lprev
 
@@ -479,7 +479,7 @@ mean((test_mtsl-exp(lprev$pred))^2)
 #MAPE
 mean(abs((test_mtsl-lprev$pred)/test_mtsl)) * 100
 
-lfprev<-sarima.for(train_mtslf,10,3,0,3)
+lfprev<-sarima.for(train_mtslf,200,3,0,3)
 
 lfprev
 
