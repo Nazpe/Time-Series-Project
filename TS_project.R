@@ -393,7 +393,7 @@ summary(lfDatafit_s$fit)
 
 #modelo com menor AIC o melhor com p value menor que 0.05
 
-############        residual analysis          ######################
+############        RESIDUAL ANALYSIS FOR ARIMA MODEL          ######################
 # The “residuals” in a time series model are what is left over after fitting a model.
 # Residuals are useful in checking whether a model has adequately captured the information in the data
 # site https://otexts.com/fpp2/residuals.html
@@ -437,7 +437,7 @@ ks.test(lfres, pnorm,mean(lfres),sqrt(var(lfres)))
 # Log data não é normal p value < 2.2e-16
 
 
-##############        Exponential Smothing methods      ###############################
+##############       EXPONENTIAL SMOTHING METHODS      ###############################
 
 #dataset log
 lETSDatafit_s = ets(train_mtsl)
