@@ -25,9 +25,9 @@ library(fpp2)
 ###############   LOADING AND TRANSFORMING THE DATA   #########################
 
 #Path Rita
-Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ciência de Dados - UA/1º Ano/2º Semestre/Séries Temporais/Trabalho Grupo/Time-Series-Project/gold.csv')
+#Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ci?ncia de Dados - UA/1? Ano/2? Semestre/S?ries Temporais/Trabalho Grupo/Time-Series-Project/gold.csv')
 #Path Nuno
-#Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/gold.csv')
+Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/gold.csv')
 Data
 
 # number of rows
@@ -42,6 +42,7 @@ With_date = subset(Data, select = -c(Open,High,Low,Volume,Currency) )
 With_date
 Dates = With_date$Date
 Dates
+tail(Dates,200)
 
 years_list <- c("2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022")
 years_list
@@ -136,10 +137,10 @@ var(lData)
 mean(lfData)
 var(lfData)
 
-par(mfrow=c(2,2))
+par(mfrow=c(2,1))
 
-plot.ts(mts, main="Normal", ylab = "Gold Prices", xlab = "Date")
-plot.ts(mtsf, main="First Differences", ylab = "Gold Prices", xlab = "Date")
+#plot.ts(mts, main="Normal", ylab = "Gold Prices", xlab = "Date")
+#plot.ts(mtsf, main="First Differences", ylab = "Gold Prices", xlab = "Date")
 plot.ts(mtsl, main="Log", ylab = "Gold Prices", xlab = "Date")
 plot.ts(mtslf, main="Log and First Differences", ylab = "Gold Prices", xlab = "Date")
 
@@ -222,30 +223,6 @@ plot(as.ts(DataComposeMultif$trend))
 plot(as.ts(DataComposeMultif$random))
 plot(DataComposeMultif)
 
-## NOTA: ACF C/ N? LAGS MENOR AT? VALOR DE 0 - MODELO MA
-##       PACF C/ N? LAGS MENOR AT? VALOR DE 0 - MODELO AR
-
-###############   ACF AND PACF   #########################
-
-#------------------#
-acf2(DataList)
-acf2(fData)
-#------------------#
-
-par(mfrow=c(2,2))
-
-acf(lData, 100, main="Log Data")
-acf(lfData, 100, main="Log and First difference")
-
-pacf(lData, 100, main="Log Data")
-pacf(lfData, 100, main="Log and First difference")
-
-# isto pode ser modelos arima, nesse caso nÃ£o se pode concluir, mas sugere-se que:
-
-# Para Data log, APENAS O PRIMEIRO VALOR (LAG=1) NO PACF ? SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1)
-#APENAS O PRIMEIRO VALOR (LAG=1) NO PACF ? SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1)
-
-# Para Log e Primeiras diferenÃ§as indica MA(1)
 
 ############### Train Test Split #################
 
@@ -278,6 +255,31 @@ plot.ts(train_mts, main="Normal", ylab = "Gold Prices", xlab = "Date")
 plot.ts(train_mtsf, main="First Differences", ylab = "Gold Prices", xlab = "Date")
 plot.ts(train_mtsl, main="Log", ylab = "Gold Prices", xlab = "Date")
 plot.ts(train_mtslf, main="Log and First Differences", ylab = "Gold Prices", xlab = "Date")
+
+## NOTA: ACF C/ N? LAGS MENOR AT? VALOR DE 0 - MODELO MA
+##       PACF C/ N? LAGS MENOR AT? VALOR DE 0 - MODELO AR
+
+###############   ACF AND PACF   #########################
+
+#------------------#
+acf2(DataList)
+acf2(fData)
+#------------------#
+
+par(mfrow=c(2,2))
+
+acf(train_mtsl, 100, main="Log Data")
+acf(train_mtslf, 100, main="Log and First difference")
+
+pacf(train_mtsl, 100, main="Log Data")
+pacf(train_mtslf, 100, main="Log and First difference")
+
+# isto pode ser modelos arima, nesse caso nÃ£o se pode concluir, mas sugere-se que:
+
+# Para Data log, APENAS O PRIMEIRO VALOR (LAG=1) NO PACF ? SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1)
+#APENAS O PRIMEIRO VALOR (LAG=1) NO PACF ? SIGNIFICATIVO, LOGO, TEMOS O MODELO AR(1)
+
+# Para Log e Primeiras diferenÃ§as indica MA(1)
 
 
 ###############   MODEL AR/MA/ARMA/ARIMA/SARIMA   ######################
@@ -471,10 +473,23 @@ lprev<-sarima.for(train_mtsl,10,1,1,2)
 
 lprev
 
+# MSE
+mean((test_mtsl-exp(lprev$pred))^2)
+
+#MAPE
+mean(abs((test_mtsl-lprev$pred)/test_mtsl)) * 100
 
 lfprev<-sarima.for(train_mtslf,10,3,0,3)
 
 lfprev
+
+# MSE
+mean((test_mtslf-exp(lfprev$pred))^2)
+
+#MAPE
+mean(abs((test_mtslf-lfprev$pred)/test_mtslf)) * 100
+
+
 
 
 ##################### Exponential Smothing methods for forecast ###############################
