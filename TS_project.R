@@ -25,9 +25,9 @@ library(fpp2)
 ###############   LOADING AND TRANSFORMING THE DATA   #########################
 
 #Path Rita
-#Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ci?ncia de Dados - UA/1? Ano/2? Semestre/S?ries Temporais/Trabalho Grupo/Time-Series-Project/gold.csv')
+Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ciência de Dados - UA/1º Ano/2º Semestre/Séries Temporais/Trabalho Grupo/Time-Series-Project/gold.csv')
 #Path Nuno
-Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/gold.csv')
+#Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/gold.csv')
 Data
 
 # number of rows
@@ -77,23 +77,23 @@ DataList
 ###############   EXAMINING THE DATA   #########################
 
 #Descriptive statistics
-summary(Data[[1]])
+summary(DataList)
 #Standard deviation and variance
-sd(Data[[1]])
-var(Data[[1]])
+sd(DataList)
+var(DataList)
 
 #QQPlot
 #A analise do QQplot permite aferir a normalidade das vari?veis a n?vel de representa??o gr?fica
 #permite comparar a distribui??o dos nossos dados com uma distribui??o normal
 
-qqnorm(Data[[1]], main="Normal QQPlot for Gold Prices in USD")
-qqline(Data[[1]], col = "steelblue", lwd = 3, lty = 2)
+qqnorm(DataList, main="Normal QQPlot for Gold Prices in USD")
+qqline(DataList, col = "steelblue", lwd = 3, lty = 2)
 
 # NÃ£o funciona nÃ£o sei porque
 #Histogram
-hist(Data[[1]], main="Histogram for Gold Prices in USD",
+hist(DataList, main="Histogram for Gold Prices in USD",
      xlab = "Gold Prices", col="grey",
-     xlim=c(0,160)) 
+     xlim=c(0,2500)) 
 
 
 ###NOTA: P-VALUE<5% - REJEITA-SE H0 - EXISTE ESTACIONARIEDADE - IND?CIOS DE WHITE NOISE
@@ -151,7 +151,7 @@ plot.ts(mtslf, main="Log and First Differences", ylab = "Gold Prices", xlab = "D
 # So in summary, the ADF test has an alternate hypothesis of linear or difference stationary, while the KPSS test identifies trend-stationarity in a series.
 
 ?adf.test
-adf.test(mts)
+adf.test(mtsl)
 # Os dados log nÃ£o sÃ£o estacionÃ¡rios
 # The p-value is obtained is greater than significance level of 0.05 
 # Clearly, there is no reason to reject the null hypothesis. So, the time series is in fact non-stationary.
