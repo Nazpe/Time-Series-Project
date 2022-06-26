@@ -17,18 +17,19 @@ library(tseries)
 library(astsa)
 library(forecast)
 library(lubridate)
+library(ffp)
 library(fpp2)
-#library(sarima)
+library(sarima)
 
 
 
 ###############   LOADING AND TRANSFORMING THE DATA   #########################
 
 #Path Rita
-#Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ci?ncia de Dados - UA/1? Ano/2? Semestre/S?ries Temporais/Trabalho Grupo/Time-Series-Project/gold.csv')
+Data <- read.csv(file = 'C:/Users/Rita/Desktop/Mestrado em Ci�ncia de Dados - UA/1� Ano/2� Semestre/S�ries Temporais/Trabalho Grupo/Time-Series-Project/gold.csv')
 #Path Nuno
-Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/gold.csv')
-Data
+#Data <- read.csv(file = 'C:/Users/nunop/Desktop/C. Dados/Semestre 2/ST/Trabalho/git/GIT/Time-Series-Project/gold.csv')
+View(Data)
 
 # number of rows
 nrow(Data)
@@ -137,10 +138,10 @@ var(lData)
 mean(lfData)
 var(lfData)
 
-par(mfrow=c(2,1))
+par(mfrow=c(2,2))
 
-#plot.ts(mts, main="Normal", ylab = "Gold Prices", xlab = "Date")
-#plot.ts(mtsf, main="First Differences", ylab = "Gold Prices", xlab = "Date")
+plot.ts(mts, main="Normal", ylab = "Gold Prices", xlab = "Date")
+plot.ts(mtsf, main="First Differences", ylab = "Gold Prices", xlab = "Date")
 plot.ts(mtsl, main="Log", ylab = "Gold Prices", xlab = "Date")
 plot.ts(mtslf, main="Log and First Differences", ylab = "Gold Prices", xlab = "Date")
 
@@ -151,7 +152,7 @@ plot.ts(mtslf, main="Log and First Differences", ylab = "Gold Prices", xlab = "D
 
 # So in summary, the ADF test has an alternate hypothesis of linear or difference stationary, while the KPSS test identifies trend-stationarity in a series.
 
-?adf.test
+#?adf.test
 adf.test(mtsl)
 # Os dados log não são estacionários
 # The p-value is obtained is greater than significance level of 0.05 
@@ -163,7 +164,7 @@ adf.test(mtslf)
 # Clearly, we can reject the null hypothesis. So, the time series is in fact stationary.
 
 
-?kpss.test
+#?kpss.test
 kpss.test(mtsl, null = c("Level", "Trend"), lshort = TRUE)
 # Os dados log são estacionários
 # The p-value is obtained is smaller than significance level of 0.05 
@@ -200,7 +201,7 @@ plot(as.ts(DataComposeMulti$trend))
 plot(as.ts(DataComposeMulti$random))
 plot(DataComposeMulti)
 
-#### First differences
+#### Log and First differences
 
 #Model Additive
 #tsf_Data_Add = ts(fData, frequency = 258)
@@ -261,11 +262,6 @@ plot.ts(train_mtslf, main="Log and First Differences", ylab = "Gold Prices", xla
 
 ###############   ACF AND PACF   #########################
 
-#------------------#
-acf2(DataList)
-acf2(fData)
-#------------------#
-
 par(mfrow=c(2,2))
 
 acf(train_mtsl, 100, main="Log Data")
@@ -319,6 +315,7 @@ lfDatafit_auto
 
 lDatafit=sarima(train_mtsl,1,1,2,0,0,0,0) 
 lDatafit
+
 
 #Coefficients:
 #  ar1     ma1      ma2  constant
@@ -396,24 +393,22 @@ summary(lfDatafit_s$fit)
 
 #modelo com menor AIC o melhor com p value menor que 0.05
 
-################## residual analysis ######################
+############        residual analysis          ######################
 # The “residuals” in a time series model are what is left over after fitting a model.
 # Residuals are useful in checking whether a model has adequately captured the information in the data
 # site https://otexts.com/fpp2/residuals.html
 
 lres=residuals(lDatafit$fit)
-
 lres
 mean(lres)
 var(lres)
 
 lfres=residuals(lfDatafit$fit)
-
 lfres
 mean(lfres)
 var(lfres)
 
-??Box.Test
+#??Box.Test
 
 Box.test(lres, lag=10, type = "Ljung-Box")
 #  based on Ljung-Box test, we don't accepted the null hypothesis  that the residuals are white noise. (no correlation)
@@ -426,7 +421,7 @@ Box.test(lfres, lag=10, type='Box-Pierce')
 #p-value = 0.5185 don't reject no correlation 
 
 
-?shapiro.test
+#?shapiro.test
 # ve normalidade dos dados
 
 shapiro.test(lres[0:5000]) 
@@ -434,40 +429,93 @@ shapiro.test(lres[0:5000])
 shapiro.test(lfres[0:5000]) 
 # Log first difference data não é normal p value < 2.2e-16
 
-?ks.test
+#?ks.test
 
 ks.test(lres, pnorm,mean(lres),sqrt(var(lres)))
 # Log data não é normal p value < 2.2e-16
-
-ks.test(lfres, pnorm,mean(lres),sqrt(var(lres)))
+ks.test(lfres, pnorm,mean(lfres),sqrt(var(lfres)))
 # Log data não é normal p value < 2.2e-16
 
 
-###############      FORECASTING      #########################
+##############        Exponential Smothing methods      ###############################
+
+#dataset log
+lETSDatafit_s = ets(train_mtsl)
+print(summary(lETSDatafit_s))
+checkresiduals(lETSDatafit_s)
+
+#dataset log and 1� differences
+lfETSDatafit_s = ets(train_mtslf)
+print(summary(lfETSDatafit_s))
+checkresiduals(lfETSDatafit_s)
+
+#residual analysis - log
+lETSres=residuals(lETSDatafit_s$fit)
+lETSres
+mean(lETSres)
+var(lETSres)
+Box.test(lETSres, lag=10, type = "Ljung-Box")
+Box.test(lETSres, lag=10, type='Box-Pierce')
+shapiro.test(lETSres[0:5000]) 
+ks.test(lETSres, pnorm,mean(lETSres),sqrt(var(lETSres)))
+
+
+#residual analysis - log and 1� differences
+lfETSres=residuals(lfETSDatafit_s$fit)
+lfETSres
+mean(lfETSres)
+var(lfETSres)
+Box.test(lfETSres, lag=10, type = "Ljung-Box")
+Box.test(lfETSres, lag=10, type='Box-Pierce')
+shapiro.test(lfETSres[0:5000]) 
+ks.test(lfETSres, pnorm,mean(lfETSres),sqrt(var(lfETSres)))
+
+
+
+###############         FORECASTING            #########################
 
 par(mfrow=c(1,1))
 
 # Next 200 forecasted values
 forecast(lDatafit_s, 200)
-
 accuracy(forecast(lDatafit_s, 200), test_mtsl)
-
 # plotting the graph with next
 # 200 weekly forecasted values
-plot(forecast(lDatafit_s, 200), main="Gold Prices in USD", ylab = "Prices", xlab = "Date")
+plot(forecast(lDatafit_s, 200), main="Prediction Gold Prices for log dataset (ARIMA MODEL)", ylab = "Prices", xlab = "Date")
 
 # Next 200 forecasted values
 forecast(lfDatafit_s, 200)
-
 accuracy(forecast(lfDatafit_s, 200), test_mtslf)
-
 # plotting the graph with next
 # 200 forecasted values
-plot(forecast(lfDatafit_s, 200), main="Gold Prices in USD", ylab = "Prices", xlab = "Date")
+plot(forecast(lfDatafit_s, 200), main="Prediction Gold Prices for log and 1� difference dataset (ARIMA MODEL)", ylab = "Prices", xlab = "Date")
 
-#  it is very useful to transform a variable and hence to obtain a new variable that follows a normal distribution.
-BoxCox.lambda(Data[[1]])
-# Não percebi bem mas pronto xD
+# Next 200 forecasted values
+forecast(lETSDatafit_s, 200)
+accuracy(forecast(lETSDatafit_s, 200), test_mtsl)
+# plotting the graph with next
+# 200 forecasted values
+plot(forecast(lETSDatafit_s, 200), main="Prediction Gold Prices for log dataset (ETS MODEL)", ylab = "Prices", xlab = "Date")
+
+# Next 200 forecasted values
+forecast(lfETSDatafit_s, 200)
+accuracy(forecast(lfETSDatafit_s, 200), test_mtslf)
+# plotting the graph with next
+# 200 forecasted values
+plot(forecast(lfETSDatafit_s, 200), main="Prediction Gold Prices for log and 1� difference dataset (ETS MODEL)", ylab = "Prices", xlab = "Date")
+
+
+
+
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------------#
 
 lprev<-sarima.for(train_mtsl,200,1,1,2)
 
@@ -490,9 +538,6 @@ mean((test_mtslf-exp(lfprev$pred))^2)
 mean(abs((test_mtslf-lfprev$pred)/test_mtslf)) * 100
 
 
-
-
-##################### Exponential Smothing methods for forecast ###############################
 
 #### Esta parte tá só um monte de copiar colar randoms talvez se ignore ####
 
