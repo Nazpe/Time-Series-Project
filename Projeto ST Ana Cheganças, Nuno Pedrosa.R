@@ -387,10 +387,30 @@ lETSDatafit_s = ets(train_mtsl)
 print(summary(lETSDatafit_s))
 checkresiduals(lETSDatafit_s)
 
+#residual analysis - log
+lETSres=residuals(lETSDatafit_s)
+lETSres
+mean(lETSres)
+var(lETSres)
+Box.test(lETSres, lag=10, type = "Ljung-Box")
+Box.test(lETSres, lag=10, type='Box-Pierce')
+shapiro.test(lETSres[0:5000]) 
+ks.test(lETSres, pnorm,mean(lETSres),sqrt(var(lETSres)))
+
 #dataset log and first differences
 lfETSDatafit_s = ets(train_mtslf)
 print(summary(lfETSDatafit_s))
 checkresiduals(lfETSDatafit_s)
+
+#residual analysis - log and first differences
+lfETSres=residuals(lfETSDatafit_s)
+lfETSres
+mean(lfETSres)
+var(lfETSres)
+Box.test(lfETSres, lag=10, type = "Ljung-Box")
+Box.test(lfETSres, lag=10, type='Box-Pierce')
+shapiro.test(lfETSres[0:5000]) 
+ks.test(lfETSres, pnorm,mean(lfETSres),sqrt(var(lfETSres)))
 
 ###############         FORECASTING            #########################
 
